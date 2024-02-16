@@ -7,7 +7,8 @@ class AppTextfield extends StatelessWidget {
     required this.label,
     required this.prefixIcon,
     this.obscureText = false,
-    this.showSuffix = false
+    this.showSuffix = false,
+    this.onPressed,
   });
 
   final TextEditingController controller;
@@ -15,21 +16,27 @@ class AppTextfield extends StatelessWidget {
   final IconData prefixIcon;
   final bool obscureText;
   final bool showSuffix;
+  final void Function()? onPressed;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: TextField(
+      child: TextFormField(
         controller: controller,
         obscureText: obscureText,
+        validator: (value) {
+          if (value!.isEmpty) {
+            return "Required";
+          } else {
+            return null;
+          }
+        },
         decoration: InputDecoration(
           label: Text(label),
           prefixIcon: Icon(prefixIcon),
           suffixIcon: showSuffix ? IconButton(
-            onPressed: (){
-
-            }, 
+            onPressed: onPressed, 
             icon: const Icon(Icons.visibility)
           ) : null,
           border: const OutlineInputBorder(
