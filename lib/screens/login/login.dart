@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:test_login_api/api/api_authorization.dart';
+import 'package:test_login_api/extras/app_constant.dart';
 import 'package:test_login_api/extras/app_textfield.dart';
+import 'package:test_login_api/provider/shared/shared_user.dart';
+import 'package:test_login_api/screens/home/home.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({
@@ -21,6 +25,32 @@ class _LoginPageState extends State<LoginPage> {
   void initState() {
     super.initState();
   }
+
+  Future login() async {
+    setState(() {
+      isLoading = !isLoading;
+    });
+    var apiAuthorization = ApiAuthorization();
+    await apiAuthorization.login(
+      usernameCtrlr.text,
+      passwordCtrlr.text
+    ).then((value) async {
+      print(value.toJson());
+      if (value.data!.isNotEmpty) {
+        var user = value.data!.first;
+        await SharedUser().setUserData(user);
+
+        Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (context) => const HomeScreen())
+        );
+      }
+    }, onError: (error) {
+      print(error.toString());
+    });
+    setState(() {
+      isLoading = !isLoading;
+    });
+  }
   
 
   @override
@@ -29,70 +59,63 @@ class _LoginPageState extends State<LoginPage> {
     print("rebuild this widget");
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("LOGIN"),
-      ),
       body: Stack(
         children: [
-          Form(
-            key: formkey ,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  height: size.height * 0.3,
-                  width: size.width * 0.7,
-                  color: Colors.red,
-                ),
-                const SizedBox(height: 32),
-                AppTextfield(controller: usernameCtrlr, label: "Useranme", prefixIcon: Icons.person),
-                AppTextfield(
-                  controller: passwordCtrlr, 
-                  label: "Password", 
-                  prefixIcon: Icons.key, 
-                  obscureText: obscureText,
-                  showSuffix: true,
-                  onPressed: (){
-                    setState(() {
-                      obscureText = !obscureText;
-                    });
-                  },
-                ),
-            
-                SizedBox(
-                  width: size.width,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    child: ElevatedButton.icon(
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        backgroundColor: Colors.red
-                      ),
-                      onPressed: () async {
-                        if (formkey.currentState!.validate()) {
-                          setState(() {
-
-                          });
-                          isLoading = !isLoading;
-                          await Future.delayed(const Duration(seconds: 3));
-                          
-                          setState(() {
-
-                          });
-                            isLoading = !isLoading;
-                        }
-                      }, 
-                      icon: const Icon(Icons.login, color: Colors.white),
-                      label: const Text(
-                        "LOGIN",
-                        style: TextStyle(
-                          color: Colors.white
-                        ),
-                      )
+          Center(
+            child: Form(
+              key: formkey ,
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      height: size.height * 0.3,
+                      width: size.width * 0.7,
+                      // color: Colors.red,
+                      child: Image.asset(AppConstant.logo),
                     ),
-                  ),
-                )
-              ],
+                    const SizedBox(height: 32),
+                    AppTextfield(controller: usernameCtrlr, label: "Useranme", prefixIcon: Icons.person),
+                    AppTextfield(
+                      controller: passwordCtrlr, 
+                      label: "Password", 
+                      prefixIcon: Icons.key, 
+                      obscureText: obscureText,
+                      showSuffix: true,
+                      onPressed: (){
+                        setState(() {
+                          obscureText = !obscureText;
+                        });
+                      },
+                    ),
+                
+                    SizedBox(
+                      width: size.width,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        child: ElevatedButton.icon(
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            backgroundColor: Colors.red
+                          ),
+                          onPressed: () async {
+                            if (formkey.currentState!.validate()) {
+                              await login();
+                            }
+                          }, 
+                          icon: const Icon(Icons.login, color: Colors.white),
+                          label: const Text(
+                            "LOGIN",
+                            style: TextStyle(
+                              color: Colors.white
+                            ),
+                          )
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+              ),
             ),
           ),
           Visibility(
