@@ -49,4 +49,11 @@ class Employee {
         "MiddleName": middleName,
         "PhoneNumber": phoneNumber,
     };
+
+    Map<String, dynamic> toMapNoId() => {
+        "FirstName": firstName,
+        "LastName": lastName,
+        "MiddleName": middleName,
+        "PhoneNumber": phoneNumber,
+    };
 }

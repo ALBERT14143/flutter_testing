@@ -4,7 +4,7 @@ import 'package:test_login_api/provider/sqlite/database_helper.dart';
 class SqlEmployee{
   static const tEmployee = "tEmployee";
   static const colId = "Id";
-  static const colFirstName = "FistName";
+  static const colFirstName = "FirstName";
   static const colLastName = "LastName";
   static const colMiddleName = "MiddleName";
   static const colPhoneNumber = "PhoneNumber";
@@ -21,7 +21,7 @@ class SqlEmployee{
 
   Future<int> insertEmployee({required Employee employee}) async {
     final db = await DatabaseHelper.instance.database;
-    return await db.insert(tEmployee, employee.toMap());
+    return await db.insert(tEmployee, employee.toMapNoId());
   }
 
   Future<List<Employee>> getEmployees() async {

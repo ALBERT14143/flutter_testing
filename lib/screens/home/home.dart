@@ -1,17 +1,40 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:test_login_api/extras/app_textfield.dart';
 import 'package:test_login_api/model/employee.dart';
 import 'package:test_login_api/model/user_response.dart';
 import 'package:test_login_api/provider/shared/shared_user.dart';
 import 'package:test_login_api/provider/sqlite/sql_employee.dart';
+import 'package:test_login_api/screens/home/widgets/create_employee_dialog.dart';
 import 'package:test_login_api/splash.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   static const id = "/home";
   const HomeScreen({
     super.key
   });
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  final sqlEmployee = SqlEmployee();
+  List<Employee>? _listEmployee;
+
+  @override
+  void initState() {
+    getEmployee();
+    super.initState();
+  }
+
+
+  Future getEmployee() async {
+    var data = await sqlEmployee.getEmployees();
+    setState(() {
+      _listEmployee = data;
+      
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,6 +79,38 @@ class HomeScreen extends StatelessWidget {
           Expanded(
             child: Container(
               color: const Color.fromARGB(255, 246, 227, 198),
+                child: _listEmployee != null ? ListView.builder(
+                  itemCount: _listEmployee!.length,
+                  itemBuilder: (context, index) {
+                    return Card(
+                      child: ListTile(
+                        title: Text(_listEmployee![index].firstName!),
+                      ),
+                    );
+                  },
+                ) : const SizedBox(),
+              // child: FutureBuilder<List<Employee>>(
+              //   future: SqlEmployee().getEmployees(),
+              //   builder: (context, snapshot) {
+              //     if (snapshot.hasData) {
+              //       var emp = snapshot.data!;
+              //       return ListView.builder(
+              //         itemCount: emp.length,
+              //         itemBuilder: (context, index) {
+              //           return Card(
+              //             child: ListTile(
+              //               title: Text(emp[index].firstName!),
+              //             ),
+              //           );
+              //         },
+              //       );
+              //     } else if (snapshot.hasError) {
+              //       return Center(child: Text(snapshot.error.toString()));
+              //     } else {
+              //       return const Center(child: CircularProgressIndicator());
+              //     }
+              //   }
+              // ),
             ),
           )
         ],
@@ -70,88 +125,6 @@ class HomeScreen extends StatelessWidget {
             },
           );
         }
-      ),
-    );
-  }
-}
-
-class CreateEmployeeDialog extends StatelessWidget {
-  const CreateEmployeeDialog({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final firstCtrlr = TextEditingController();
-    final lastCtrlr = TextEditingController();
-    final middleCtrlr = TextEditingController();
-    final phoneCtrlr = TextEditingController();
-    return Dialog(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            AppTextfield(
-              controller: firstCtrlr, 
-              label: "First Name", 
-              prefixIcon: Icons.person
-            ),
-        
-            AppTextfield(
-              controller: middleCtrlr, 
-              label: "Middle Name", 
-              prefixIcon: Icons.person
-            ),
-        
-            AppTextfield(
-              controller: lastCtrlr, 
-              label: "Last Name", 
-              prefixIcon: Icons.person
-            ),
-        
-            AppTextfield(
-              controller: phoneCtrlr, 
-              label: "Phone Number", 
-              prefixIcon: Icons.phone
-            ),
-            
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-              child: ElevatedButton.icon(
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  backgroundColor: Colors.red
-                ),
-                onPressed: () async {
-                  // if (formkey.currentState!.validate()) {
-                  //   await login();
-                  // }
-
-                  var sqlEmployee = SqlEmployee();
-                  var employee = Employee(
-                    firstName: firstCtrlr.text,
-                    middleName: middleCtrlr.text,
-                    lastName: lastCtrlr.text,
-                    phoneNumber: phoneCtrlr.text
-                  );
-
-                  await sqlEmployee.insertEmployee(employee: employee).then((value) {
-                    print(value);
-                  });
-                }, 
-                icon: const Icon(Icons.login, color: Colors.white),
-                label: const Text(
-                  "SAVE",
-                  style: TextStyle(
-                    color: Colors.white
-                  ),
-                )
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
