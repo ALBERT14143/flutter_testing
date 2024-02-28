@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:test_login_api/routes.dart';
-import 'package:test_login_api/screens/home/home.dart';
-import 'package:test_login_api/screens/login/login.dart';
-import 'package:test_login_api/splash.dart';
 
 void main() {
   runApp(const MyApp(title: "Home App"));
