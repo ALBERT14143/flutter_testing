@@ -6,6 +6,7 @@ import 'package:test_login_api/provider/shared/shared_user.dart';
 import 'package:test_login_api/screens/home/home.dart';
 
 class LoginPage extends StatefulWidget {
+  static const id = "/login";
   const LoginPage({
     super.key
   });

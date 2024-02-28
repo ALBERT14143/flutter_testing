@@ -4,6 +4,7 @@ import 'package:test_login_api/screens/home/home.dart';
 import 'package:test_login_api/screens/login/login.dart';
 
 class SplashScreen extends StatelessWidget {
+  static const id = "/";
   const SplashScreen({super.key});
 
   @override

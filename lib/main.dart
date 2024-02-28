@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:test_login_api/routes.dart';
+import 'package:test_login_api/screens/home/home.dart';
+import 'package:test_login_api/screens/login/login.dart';
 import 'package:test_login_api/splash.dart';
 
 void main() {
@@ -21,7 +24,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const SplashScreen()
+      onGenerateRoute: AppRoute().onRouteGenerate
     );
   }
 }
