@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:test_login_api/screens/home/details.dart';
 import 'package:test_login_api/screens/home/home.dart';
 import 'package:test_login_api/screens/login/login.dart';
 import 'package:test_login_api/splash.dart';
@@ -16,6 +17,9 @@ class AppRoute{
 
       case HomeScreen.id:
         return MaterialPageRoute(builder: (context) => const HomeScreen());
+
+      case DetailsScreen.id:
+        return MaterialPageRoute(builder: (context) => const DetailsScreen());
 
       default: 
       return MaterialPageRoute(builder: (context) => const SplashScreen());

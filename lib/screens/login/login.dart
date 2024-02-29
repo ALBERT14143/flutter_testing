@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:test_login_api/api/api_authorization.dart';
 import 'package:test_login_api/extras/app_constant.dart';
 import 'package:test_login_api/extras/app_textfield.dart';
@@ -41,9 +42,7 @@ class _LoginPageState extends State<LoginPage> {
         var user = value.data!.first;
         await SharedUser().setUserData(user);
 
-        Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (context) => const HomeScreen())
-        );
+        Get.offNamed(HomeScreen.id);
       }
     }, onError: (error) {
       print(error.toString());

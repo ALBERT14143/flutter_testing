@@ -29,4 +29,9 @@ class SqlEmployee{
     var raw = await db.query(tEmployee);
     return raw.map((e) => Employee.fromMap(e)).toList();
   }
+
+  Future<int> removeEmployee(int id) async {
+    final db = await DatabaseHelper.instance.database;
+    return await db.delete(tEmployee, where: "$colId = ?", whereArgs: [id]);
+  }
 }

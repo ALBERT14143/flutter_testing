@@ -1,15 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:test_login_api/extras/app_textfield.dart';
 import 'package:test_login_api/model/employee.dart';
 import 'package:test_login_api/provider/sqlite/sql_employee.dart';
+import 'package:test_login_api/screens/home/controller/home_controller.dart';
 
 class CreateEmployeeDialog extends StatelessWidget {
   const CreateEmployeeDialog({
+    required this.onPressed,
     super.key,
   });
 
+  final Function(Employee) onPressed;
+
   @override
   Widget build(BuildContext context) {
+    var controller = Get.find<HomeController>();
     final firstCtrlr = TextEditingController();
     final lastCtrlr = TextEditingController();
     final middleCtrlr = TextEditingController();
@@ -56,18 +62,13 @@ class CreateEmployeeDialog extends StatelessWidget {
                   // if (formkey.currentState!.validate()) {
                   //   await login();
                   // }
-
-                  var sqlEmployee = SqlEmployee();
                   var employee = Employee(
                     firstName: firstCtrlr.text,
                     middleName: middleCtrlr.text,
                     lastName: lastCtrlr.text,
                     phoneNumber: phoneCtrlr.text
                   );
-
-                  await sqlEmployee.insertEmployee(employee: employee).then((value) {
-                    print(value);
-                  });
+                  onPressed(employee);
                 }, 
                 icon: const Icon(Icons.login, color: Colors.white),
                 label: const Text(

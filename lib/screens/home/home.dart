@@ -1,131 +1,131 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:get/get.dart';
 import 'package:test_login_api/model/employee.dart';
 import 'package:test_login_api/model/user_response.dart';
 import 'package:test_login_api/provider/shared/shared_user.dart';
 import 'package:test_login_api/provider/sqlite/sql_employee.dart';
+import 'package:test_login_api/screens/home/controller/details_controller.dart';
+import 'package:test_login_api/screens/home/controller/home_controller.dart';
+import 'package:test_login_api/screens/home/details.dart';
 import 'package:test_login_api/screens/home/widgets/create_employee_dialog.dart';
 import 'package:test_login_api/splash.dart';
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends StatelessWidget {
   static const id = "/home";
-  const HomeScreen({
-    super.key
-  });
+  const HomeScreen({super.key});
 
-  @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
-  final sqlEmployee = SqlEmployee();
-  List<Employee>? _listEmployee;
-
-  @override
-  void initState() {
-    getEmployee();
-    super.initState();
-  }
-
-
-  Future getEmployee() async {
-    var data = await sqlEmployee.getEmployees();
-    setState(() {
-      _listEmployee = data;
-      
-    });
-  }
-
-  @override
+   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Home Screen"),
-      ),
-      body: Column(
-        children: [
-          Column(
-            children: [
-              FutureBuilder<Datum>(
-                future: Future.delayed(const Duration(seconds: 4)).then((value) => SharedUser().getUserData()), 
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    var userData = snapshot.data!;
-                    return Column(
-                      children: [
-                        Text(userData.fullnameLast!),
-                      ],
-                    );
-                  } else if (snapshot.hasError){
-                    return Center(child: Text(snapshot.error.toString()));
-                  } else {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-                },
-              ),
-              ElevatedButton(
-                onPressed: () async {
-                  var sharedUser = SharedUser();
-                  await sharedUser.removeUserKey();
-                  Navigator.pushReplacement(
-                    context, MaterialPageRoute(builder: (context) => const SplashScreen())
-                  );
-                }, 
-                child: const Text("LOGOUT")
-              )
-            ],
-          ),
+    print("REBUILD THIS WIDGET");
+    var controller = Get.put(HomeController());
 
-          Expanded(
-            child: Container(
-              color: const Color.fromARGB(255, 246, 227, 198),
-                child: _listEmployee != null ? ListView.builder(
-                  itemCount: _listEmployee!.length,
-                  itemBuilder: (context, index) {
-                    return Card(
-                      child: ListTile(
-                        title: Text(_listEmployee![index].firstName!),
-                      ),
-                    );
+    return controller.obx((state) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text("Home Screen"),
+        ),
+        body: Column(
+          children: [
+            Column(
+              children: [
+                FutureBuilder<Datum>(
+                  future: Future.delayed(const Duration(seconds: 4)).then((value) => controller.getUserDetails()), 
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      var userData = snapshot.data!;
+                      return Column(
+                        children: [
+                          Text(userData.fullnameLast!),
+                        ],
+                      );
+                    } else if (snapshot.hasError){
+                      return Center(child: Text(snapshot.error.toString()));
+                    } else {
+                      return const Center(child: CircularProgressIndicator());
+                    }
                   },
-                ) : const SizedBox(),
-              // child: FutureBuilder<List<Employee>>(
-              //   future: SqlEmployee().getEmployees(),
-              //   builder: (context, snapshot) {
-              //     if (snapshot.hasData) {
-              //       var emp = snapshot.data!;
-              //       return ListView.builder(
-              //         itemCount: emp.length,
-              //         itemBuilder: (context, index) {
-              //           return Card(
-              //             child: ListTile(
-              //               title: Text(emp[index].firstName!),
-              //             ),
-              //           );
-              //         },
-              //       );
-              //     } else if (snapshot.hasError) {
-              //       return Center(child: Text(snapshot.error.toString()));
-              //     } else {
-              //       return const Center(child: CircularProgressIndicator());
-              //     }
-              //   }
-              // ),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    
+                    await controller.logout();
+                    Get.offNamed(SplashScreen.id);
+                  }, 
+                  child: const Text("LOGOUT")
+                )
+              ],
             ),
-          )
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        child: const Icon(Icons.create),
-        onPressed: (){
-          showDialog(
-            context: context, 
-            builder: (context) {
-              return const CreateEmployeeDialog();
-            },
-          );
-        }
-      ),
-    );
+
+            Expanded(
+              child: Container(
+                color: const Color.fromARGB(255, 246, 227, 198),
+                  child: Obx( () {
+                      return ListView.builder(
+                        itemCount: controller.listEmployee.length,
+                        itemBuilder: (context, index) {
+                          return Card(
+                            child: ListTile(
+                              leading: CircleAvatar(
+                                child: Text("${controller.listEmployee[index].id ?? "N/A"}")
+                              ),
+                              title: Text("${controller.listEmployee[index].firstName!} ${controller.listEmployee[index].middleName!} ${controller.listEmployee[index].lastName!}"),
+                              subtitle: Text(controller.listEmployee[index].phoneNumber!),
+                              trailing: IconButton(
+                                onPressed: (){
+                                  controller.removeEmployee(controller.listEmployee[index].id!);
+                                }, 
+                                icon: const Icon(Icons.delete, color: Colors.red)
+                              ),
+                              onTap: () {
+                                controller.setEmployee(controller.listEmployee[index]);
+                                Get.toNamed(DetailsScreen.id);
+                              },
+                            ),
+                          );
+                        },
+                      );
+                    }
+                  )
+              ),
+            )
+          ],
+        ),
+        floatingActionButton: FloatingActionButton(
+          child: const Icon(Icons.create),
+          onPressed: (){
+            showDialog(
+              context: context, 
+              builder: (context) {
+                return Stack(
+                  children: [
+                    CreateEmployeeDialog(
+                      onPressed: (employee) async {
+                        // await Future.delayed(const Duration(seconds: 3));
+                        await controller.insert(employee).then((value) async {
+                          Navigator.pop(context);
+                        }, onError: (error) {
+                        });
+                      },
+                    ),
+                    Visibility(
+                      visible: false,
+                      child: Container(
+                        color: Colors.black.withOpacity(0.5),
+                        child: const Center(child: CircularProgressIndicator()),
+                      ),
+                    )
+                  ],
+                );
+              },
+            );
+          }
+        ),
+      );
+    }, onError: (error) {
+      return Text(error.toString());
+    }, onLoading: const Center(child: CircularProgressIndicator()));
+    
   }
 }
